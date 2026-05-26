@@ -1,0 +1,58 @@
+name: 'dbt_bank_analytics'
+version: '1.0.0'
+require-dbt-version: ">=1.0.0"
+
+profile: 'dbt_bank_analytics'
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+analysis-paths: ["analyses"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+packages-install-path: "dbt_packages"
+
+models:
+  dbt_bank_analytics:
+
+    staging:
+      +materialized: view
+      +schema: staging
+      +meta:
+        owner: "goga"
+        business_domain: "data_engineering"
+        layer: "staging"
+
+    intermediate:
+      +materialized: ephemeral
+      +meta:
+        owner: "goga"
+        business_domain: "data_engineering"
+        layer: "intermediate"
+
+    marts:
+      finance:
+        +materialized: table
+        +schema: finance
+        +meta:
+          owner: "goga"
+          business_domain: "finance"
+          layer: "marts"
+
+      customers:
+        +materialized: table
+        +schema: customers
+        +meta:
+          owner: "goga"
+          business_domain: "customer_analytics"
+          layer: "marts"
+
+seeds:
+  dbt_bank_analytics:
+    +schema: seeds
+
+snapshots:
+  dbt_bank_analytics:
+    +schema: snapshots
