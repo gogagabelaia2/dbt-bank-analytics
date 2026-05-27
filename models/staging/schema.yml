@@ -1,0 +1,592 @@
+version: 2
+
+models:
+  - name: stg_accounts
+    description: >
+      Staging model for bank accounts. One row per account.
+      Cleaned and typed from raw source — no business logic here.
+    meta:
+      owner: "goga"
+      business_domain: "retail_banking"
+      sla: "daily"
+    columns:
+      - name: account_id
+        description: Unique identifier for each bank account.
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Foreign key to stg_customers. Links account to its owner.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+              severity: warn
+      - name: branch_id
+        description: Foreign key to stg_branches. Branch where account was opened.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_branches')
+              field: branch_id
+              severity: warn
+      - name: account_number
+        description: Human-readable account number shown to customers.
+        tests:
+          - not_null
+      - name: account_type
+        description: Type of account — determines product rules and interest rates.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['business', 'checking', 'investment', 'joint', 'savings', 'student']
+              severity: warn
+      - name: currency
+        description: ISO currency code for the account (e.g. USD, GEL, EUR).
+        tests:
+          - not_null
+      - name: balance
+        description: Current account balance in the account's native currency.
+        tests:
+          - not_null
+      - name: status
+        description: Operational status of the account.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['active', 'closed', 'frozen', 'inactive', 'suspended']
+              severity: warn
+
+  - name: stg_branches
+    description: >
+      Staging model for bank branches. One row per branch.
+      Includes geographic data used for regional performance analysis.
+    meta:
+      owner: "goga"
+      business_domain: "retail_banking"
+      sla: "weekly"
+    columns:
+      - name: branch_id
+        description: Unique identifier for each branch.
+        tests:
+          - unique
+          - not_null
+      - name: branch_code
+        description: Short alphanumeric code used internally to identify the branch.
+        tests:
+          - unique
+          - not_null
+      - name: country_code
+        description: ISO Alpha-2 country code where the branch operates.
+        tests:
+          - not_null
+      - name: country_name
+        description: Full country name corresponding to country_code.
+        tests:
+          - not_null
+      - name: city
+        description: City where the branch is physically located.
+        tests:
+          - not_null
+
+  - name: stg_cards
+    description: >
+      Staging model for payment cards. One row per card.
+      Linked to both accounts and customers for dual-key access patterns.
+    meta:
+      owner: "goga"
+      business_domain: "retail_banking"
+      sla: "daily"
+    columns:
+      - name: card_id
+        description: Unique identifier for each payment card.
+        tests:
+          - unique
+          - not_null
+      - name: account_id
+        description: Foreign key to stg_accounts. Account this card is issued against.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_accounts')
+              field: account_id
+              severity: warn
+      - name: customer_id
+        description: Foreign key to stg_customers. Card holder.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+              severity: warn
+      - name: card_type
+        description: Product type of the card — determines credit limit and fee structure.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['credit', 'debit', 'prepaid', 'virtual']
+              severity: warn
+      - name: card_network
+        description: Payment network that processes card transactions.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['american express', 'discover', 'jcb', 'mastercard', 'unionpay', 'visa']
+              severity: warn
+      - name: status
+        description: Current lifecycle status of the card.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['active', 'blocked', 'cancelled', 'expired']
+              severity: warn
+
+  - name: stg_collateral
+    description: >
+      Staging model for loan collateral. One row per collateral item.
+      Used in credit risk assessment — collateral coverage ratio is a key banking metric.
+    meta:
+      owner: "goga"
+      business_domain: "credit_risk"
+      sla: "daily"
+    columns:
+      - name: collateral_id
+        description: Unique identifier for each collateral item.
+        tests:
+          - unique
+          - not_null
+      - name: loan_id
+        description: Foreign key to stg_loans. The loan this collateral secures.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_loans')
+              field: loan_id
+              severity: warn
+      - name: customer_id
+        description: Foreign key to stg_customers. Owner of the collateral.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+              severity: warn
+      - name: collateral_type
+        description: Asset class of the collateral — affects liquidation value and recovery rate.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['cash deposit', 'equipment', 'inventory', 'real estate', 'securities', 'vehicle']
+              severity: warn
+      - name: current_value
+        description: Current market value of the collateral in the loan's currency.
+        tests:
+          - not_null
+
+  - name: stg_credit_assessments
+    description: >
+      Staging model for customer credit assessments. One row per assessment.
+      Used to evaluate creditworthiness before loan approval.
+    meta:
+      owner: "goga"
+      business_domain: "credit_risk"
+      sla: "daily"
+    columns:
+      - name: assessment_id
+        description: Unique identifier for each credit assessment event.
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Foreign key to stg_customers. Customer being assessed.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+              severity: warn
+      - name: credit_score
+        description: Numerical credit score assigned to the customer (typically 300–850).
+        tests:
+          - not_null
+      - name: monthly_income
+        description: Customer's declared monthly income at the time of assessment.
+      - name: decision
+        description: Final underwriting decision produced by the assessment.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['approved', 'conditional', 'pending', 'rejected', 'review']
+              severity: warn
+
+  - name: stg_customers
+    description: >
+      Staging model for bank customers. One row per customer.
+      Central entity — almost every other model joins back to this one.
+    meta:
+      owner: "goga"
+      business_domain: "customer_analytics"
+      sla: "daily"
+    columns:
+      - name: customer_id
+        description: Unique identifier for each customer. Primary key of this model.
+        tests:
+          - unique
+          - not_null
+      - name: customer_type
+        description: Customer segment — drives product eligibility and relationship management.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['corporate', 'premium', 'retail', 'sme', 'vip']
+              severity: warn
+      - name: first_name
+        description: Customer's legal first name.
+        tests:
+          - not_null
+      - name: last_name
+        description: Customer's legal last name.
+        tests:
+          - not_null
+      - name: email
+        description: Primary email address used for communications and authentication.
+        tests:
+          - not_null
+      - name: gender
+        description: Customer's self-reported gender.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['female', 'male']
+              severity: warn
+      - name: country_code
+        description: ISO Alpha-2 code of the customer's country of residence.
+        tests:
+          - not_null
+      - name: country_name
+        description: Full country name corresponding to country_code.
+        tests:
+          - not_null
+      - name: city
+        description: City of residence for the customer.
+        tests:
+          - not_null
+      - name: onboarding_date
+        description: Date when the customer was first registered in the system.
+        tests:
+          - not_null
+
+  - name: stg_deposits
+    description: >
+      Staging model for term deposits. One row per deposit contract.
+      Deposits are a core liability product — used in deposit concentration analysis.
+    meta:
+      owner: "goga"
+      business_domain: "finance"
+      sla: "daily"
+    columns:
+      - name: deposit_id
+        description: Unique identifier for each deposit contract.
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Foreign key to stg_customers. Deposit holder.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+              severity: warn
+      - name: account_id
+        description: Foreign key to stg_accounts. Account linked to this deposit.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_accounts')
+              field: account_id
+              severity: warn
+      - name: principal_amount
+        description: Original amount placed in the deposit at contract start.
+        tests:
+          - not_null
+      - name: currency
+        description: Currency of the deposit contract.
+        tests:
+          - not_null
+      - name: status
+        description: Current lifecycle status of the deposit.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['active', 'closed', 'matured', 'renewed']
+              severity: warn
+
+  - name: stg_employees
+    description: >
+      Staging model for bank employees. One row per employee.
+      Used in branch performance analysis and HR reporting.
+    meta:
+      owner: "goga"
+      business_domain: "hr"
+      sla: "weekly"
+    columns:
+      - name: employee_id
+        description: Unique identifier for each employee.
+        tests:
+          - unique
+          - not_null
+      - name: employee_code
+        description: Internal HR code assigned to the employee.
+        tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Employee's first name.
+        tests:
+          - not_null
+      - name: last_name
+        description: Employee's last name.
+        tests:
+          - not_null
+      - name: branch_id
+        description: Foreign key to stg_branches. Branch where employee works.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_branches')
+              field: branch_id
+              severity: warn
+      - name: department
+        description: Department the employee belongs to — used for cost center reporting.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['marketing', 'finance', 'operations', 'risk management', 'hr',
+                       'retail banking', 'treasury', 'corporate banking', 'compliance', 'it']
+              severity: warn
+      - name: salary
+        description: Monthly gross salary of the employee in local currency.
+        tests:
+          - not_null
+
+  - name: stg_financial_summary
+    description: >
+      Staging model for monthly financial summary reports. One row per report date.
+      Aggregated P&L and balance sheet data — used for top-level financial KPIs.
+    meta:
+      owner: "goga"
+      business_domain: "finance"
+      sla: "monthly"
+    columns:
+      - name: summary_id
+        description: Unique identifier for each financial summary record.
+        tests:
+          - unique
+          - not_null
+      - name: report_date
+        description: Date of the financial report. One record per reporting period.
+        tests:
+          - unique
+          - not_null
+      - name: interest_income
+        description: Total interest earned on loans and investments in the period.
+        tests:
+          - not_null
+      - name: interest_expense
+        description: Total interest paid on deposits and borrowings in the period.
+        tests:
+          - not_null
+      - name: net_income
+        description: Interest income minus interest expense — core profitability metric.
+        tests:
+          - not_null
+      - name: total_assets
+        description: Total value of all assets on the bank's balance sheet.
+        tests:
+          - not_null
+      - name: total_loans_gross
+        description: Total gross loan portfolio before provisions.
+        tests:
+          - not_null
+      - name: total_deposits
+        description: Total customer deposits — primary funding source for the bank.
+        tests:
+          - not_null
+
+  - name: stg_loan_payments
+    description: >
+      Staging model for loan repayment records. One row per payment event.
+      Used to calculate repayment rates and identify overdue borrowers.
+    meta:
+      owner: "goga"
+      business_domain: "credit_risk"
+      sla: "daily"
+    columns:
+      - name: payment_id
+        description: Unique identifier for each loan payment transaction.
+        tests:
+          - unique
+          - not_null
+      - name: loan_id
+        description: Foreign key to stg_loans. The loan being repaid.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_loans')
+              field: loan_id
+              severity: warn
+      - name: customer_id
+        description: Foreign key to stg_customers. Borrower making the payment.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+              severity: warn
+      - name: total_paid
+        description: Total amount paid in this payment event.
+        tests:
+          - not_null
+      - name: payment_status
+        description: Outcome of the payment — used to flag delinquency.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['overdue', 'paid', 'partial', 'waived']
+              severity: warn
+
+  - name: stg_loans
+    description: >
+      Staging model for loan contracts. One row per loan.
+      Core credit risk table — source for NPL ratio, classification, and provision calculations.
+    meta:
+      owner: "goga"
+      business_domain: "credit_risk"
+      sla: "daily"
+    columns:
+      - name: loan_id
+        description: Unique identifier for each loan contract.
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Foreign key to stg_customers. The borrower.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+              severity: warn
+      - name: account_id
+        description: Foreign key to stg_accounts. Account the loan is disbursed to.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_accounts')
+              field: account_id
+              severity: warn
+      - name: loan_type
+        description: Product type of the loan — determines terms and risk profile.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['auto', 'business', 'home equity', 'mortgage', 'personal', 'student']
+              severity: warn
+      - name: original_amount
+        description: Principal amount disbursed to the customer at loan origination.
+        tests:
+          - not_null
+      - name: outstanding_balance
+        description: Remaining unpaid principal — used to calculate exposure at default.
+        tests:
+          - not_null
+      - name: days_past_due
+        description: Number of days the loan is overdue. 0 means current. Key NPL indicator.
+        tests:
+          - not_null
+      - name: classification
+        description: >
+          Regulatory loan classification per National Bank standards.
+          Drives provisioning requirements and NPL ratio calculation.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Standard', 'Watch', 'Substandard', 'Doubtful', 'Loss']
+              severity: warn
+
+  - name: stg_transactions
+    description: >
+      Staging model for financial transactions. One row per transaction.
+      Highest-volume table in the project — used for revenue, volume, and behavior analysis.
+    meta:
+      owner: "goga"
+      business_domain: "retail_banking"
+      sla: "daily"
+    columns:
+      - name: transaction_id
+        description: Unique identifier for each financial transaction.
+        tests:
+          - unique
+          - not_null
+      - name: account_id
+        description: Foreign key to stg_accounts. Account where transaction occurred.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_accounts')
+              field: account_id
+              severity: warn
+      - name: customer_id
+        description: Foreign key to stg_customers. Customer who initiated the transaction.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+              severity: warn
+      - name: transaction_date
+        description: Date when the transaction was executed.
+        tests:
+          - not_null
+      - name: transaction_type
+        description: Direction and mechanism of the transaction.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['credit', 'debit', 'deposit', 'payment', 'transfer', 'withdrawal']
+              severity: warn
+      - name: transaction_category
+        description: Merchant category of the transaction — used for spend behavior analysis.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['atm', 'bill payment', 'charity', 'dining', 'education',
+                       'entertainment', 'fuel', 'groceries', 'healthcare', 'insurance',
+                       'investments', 'online purchase', 'rent', 'salary', 'shopping',
+                       'taxes', 'travel', 'utilities']
+              severity: warn
+      - name: amount
+        description: Transaction amount in the account's currency. Always positive.
+        tests:
+          - not_null
+      - name: currency
+        description: ISO currency code of the transaction.
+        tests:
+          - not_null
+      - name: status
+        description: Settlement status of the transaction.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['completed', 'failed', 'pending', 'reversed']
+              severity: warn
+      - name: reference_number
+        description: Unique external reference number for reconciliation purposes.
+        tests:
+          - not_null
+      - name: description
+        description: Free-text description of the transaction, often merchant name.
+        tests:
+          - not_null
