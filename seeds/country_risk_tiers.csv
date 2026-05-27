@@ -1,0 +1,48 @@
+country_code,country_name,risk_tier,aml_flag,notes
+GE,Georgia,Tier1,false,Domestic — standard monitoring
+US,United States,Tier1,false,FATF member — low risk
+GB,United Kingdom,Tier1,false,FATF member — low risk
+DE,Germany,Tier1,false,FATF member — low risk
+FR,France,Tier1,false,FATF member — low risk
+IT,Italy,Tier1,false,FATF member — low risk
+CH,Switzerland,Tier1,false,FATF member — low risk
+NO,Norway,Tier1,false,FATF member — low risk
+SE,Sweden,Tier1,false,FATF member — low risk
+NL,Netherlands,Tier1,false,FATF member — low risk
+AU,Australia,Tier1,false,FATF member — low risk
+CA,Canada,Tier1,false,FATF member — low risk
+JP,Japan,Tier1,false,FATF member — low risk
+KR,South Korea,Tier1,false,FATF member — low risk
+SG,Singapore,Tier1,false,FATF member — low risk
+TR,Turkey,Tier2,false,Elevated monitoring required
+CN,China,Tier2,false,Elevated monitoring required
+SA,Saudi Arabia,Tier2,false,Elevated monitoring required
+AZ,Azerbaijan,Tier2,false,Elevated monitoring required
+AM,Armenia,Tier2,false,Elevated monitoring required
+KZ,Kazakhstan,Tier2,false,Elevated monitoring required
+UA,Ukraine,Tier2,false,Elevated monitoring required
+IN,India,Tier2,false,Elevated monitoring required
+PH,Philippines,Tier2,false,Elevated monitoring required
+VN,Vietnam,Tier2,false,Elevated monitoring required
+MY,Malaysia,Tier2,false,Elevated monitoring required
+TH,Thailand,Tier2,false,Elevated monitoring required
+ID,Indonesia,Tier2,false,Elevated monitoring required
+BR,Brazil,Tier2,false,Elevated monitoring required
+MX,Mexico,Tier2,false,Elevated monitoring required
+CO,Colombia,Tier2,false,Elevated monitoring required
+AR,Argentina,Tier2,false,Elevated monitoring required
+ZA,South Africa,Tier2,false,Elevated monitoring required
+NG,Nigeria,Tier2,false,Elevated monitoring required
+GH,Ghana,Tier2,false,Elevated monitoring required
+KE,Kenya,Tier2,false,Elevated monitoring required
+EG,Egypt,Tier2,false,Elevated monitoring required
+PK,Pakistan,Tier2,false,Elevated monitoring required
+PL,Poland,Tier2,false,Elevated monitoring required
+CZ,Czech Republic,Tier2,false,Elevated monitoring required
+RO,Romania,Tier2,false,Elevated monitoring required
+HU,Hungary,Tier2,false,Elevated monitoring required
+GR,Greece,Tier2,false,Elevated monitoring required
+PT,Portugal,Tier2,false,Elevated monitoring required
+ES,Spain,Tier2,false,Elevated monitoring required
+RU,Russia,Tier3,true,High risk — enhanced due diligence
+IR,Iran,Tier3,true,Sanctioned — transactions blocked

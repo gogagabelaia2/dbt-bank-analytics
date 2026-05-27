@@ -1,0 +1,6 @@
+classification,risk_level,provision_rate,description
+Standard,Low,0.01,Current — no signs of impairment
+Watch,Medium,0.05,Some weakness but still performing
+Substandard,High,0.20,Clearly impaired — partial loss expected
+Doubtful,Very High,0.50,Full collection unlikely
+Loss,Critical,1.00,Uncollectable — write-off required

@@ -1,0 +1,45 @@
+version: 2
+
+seeds:
+
+  - name: loan_classifications
+    description: >
+      სესხის კლასიფიკაციების საცნობარო ცხრილი — 
+      ეროვნული ბანკის სტანდარტების მიხედვით.
+      გამოიყენება NPL ratio-სა და provision-ის გამოსათვლელად.
+    columns:
+      - name: classification
+        description: სესხის კლასიფიკაციის სახელი
+        tests:
+          - unique        # ყოველი classification უნიკალური უნდა იყოს
+          - not_null      # ცარიელი არ უნდა იყოს
+          - accepted_values:
+              values: ['Standard', 'Watch', 'Substandard', 'Doubtful', 'Loss']
+
+      - name: provision_rate
+        description: საპროვიზიო განაკვეთი 0-დან 1-მდე
+        tests:
+          - not_null
+
+  - name: country_risk_tiers
+    description: >
+      ქვეყნების რისკ-კლასიფიკაცია AML/KYC მიზნებისთვის.
+      გამოიყენება customer-ების გეოგრაფიული რისკის შეფასებისთვის.
+    columns:
+      - name: country_code
+        description: ISO Alpha-3 ქვეყნის კოდი
+        tests:
+          - unique
+          - not_null
+
+      - name: risk_tier
+        description: რისკ-დონე
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Tier1', 'Tier2', 'Tier3']
+
+      - name: aml_flag
+        description: AML გაფრთხილების ნიშნული
+        tests:
+          - not_null
