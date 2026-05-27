@@ -1,8 +1,10 @@
-{% macro risk_flag(columns) %}
+{% macro dpd_bucket(days_past_due) %}
 case
-    {% for col in columns %}
-        when {{ col }} is null then 'missing_{{ col }}'
-    {% endfor %}
-    else 'ok'
-end as data_quality_flag
+    when {{ days_past_due }} = 0 then 'Current'
+    when {{ days_past_due }} between 1 and 30 then '1-30 DPD'
+    when {{ days_past_due }} between 31 and 60 then '31-60 DPD'
+    when {{ days_past_due }} between 61 and 90 then '61-90 DPD'
+    when {{ days_past_due }} > 90 then '90+ DPD'
+    else 'Unknown' 
+end
 {% endmacro %}
