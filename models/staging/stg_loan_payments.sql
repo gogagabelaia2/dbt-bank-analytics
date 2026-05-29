@@ -7,7 +7,7 @@ renamed as (
         loan_id,
         customer_id,
         total_paid,
-        lower(trim(payment_status))     as payment_status,
+        lower(trim(payment_status))  as payment_status,
         created_at
     from source
 )

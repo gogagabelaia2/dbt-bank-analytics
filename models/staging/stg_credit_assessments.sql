@@ -9,8 +9,8 @@ renamed as (
         case
             when monthly_income < 0 then null
             else monthly_income
-        end                             as monthly_income,
-        lower(trim(decision))           as decision,
+        end  as monthly_income,
+        lower(trim(decision))  as decision,
         created_at
     from source
 )
