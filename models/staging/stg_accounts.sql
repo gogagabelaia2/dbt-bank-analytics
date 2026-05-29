@@ -6,7 +6,7 @@ cleaned as (
         account_id,
         customer_id,
         branch_id,
-        trim(account_number)     as account_number,
+        trim(account_number)    as account_number,
         lower(trim(account_type))    as account_type,
         upper(trim(currency))     as currency,
         balance,

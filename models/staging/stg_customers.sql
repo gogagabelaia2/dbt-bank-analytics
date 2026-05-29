@@ -7,7 +7,7 @@ cleaned as (
         lower(trim(customer_type))   as customer_type,
         initcap(trim(first_name))   as first_name,
         initcap(trim(last_name))   as last_name,
-        lower(trim(email))   as email,
+        lower(trim(email))    as email,
         lower(trim(gender))   as gender,
         upper(trim(country_code))    as country_code,
         initcap(trim(country_name))   as country_name,
