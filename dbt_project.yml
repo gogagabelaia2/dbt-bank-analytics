@@ -33,6 +33,8 @@ models:
         layer: "intermediate"
 
     marts:
+      +post-hook:
+        - "insert into public.dbt_audit_log values ('{{ this.name }}', current_timestamp, null)"
       finance:
         +materialized: table
         +schema: finance
