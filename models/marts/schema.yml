@@ -1,0 +1,116 @@
+version: 2
+
+models:
+
+  - name: fct_loan_portfolio
+    description: "Aggregated loan portfolio metrics including NPL ratio and provision amounts"
+    columns:
+      - name: total_loans
+        description: "Total number of loans"
+        tests:
+          - not_null
+      - name: total_outstanding_balance
+        description: "Sum of all outstanding loan balances"
+        tests:
+          - not_null
+      - name: npl_amount
+        description: "Total outstanding balance of non-performing loans (DPD > 90)"
+        tests:
+          - not_null
+      - name: npl_ratio
+        description: "Ratio of NPL amount to total outstanding balance"
+        tests:
+          - not_null
+      - name: total_provision
+        description: "Total provision amount based on loan classification"
+        tests:
+          - not_null
+
+  - name: dim_customers
+    description: "Customer dimension table with balance metrics and segmentation"
+    columns:
+      - name: customer_id
+        description: "Unique customer identifier"
+        tests:
+          - unique
+          - not_null
+      - name: customer_type
+        description: "Type of customer: corporate, premium, retail, sme, vip"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['corporate', 'premium', 'retail', 'sme', 'vip']
+      - name: country_code
+        description: "ISO country code of the customer"
+        tests:
+          - not_null
+      - name: city
+        description: "City of the customer"
+        tests:
+          - not_null
+      - name: onboarding_date
+        description: "Date when the customer was onboarded"
+        tests:
+          - not_null
+      - name: total_accounts
+        description: "Total number of accounts per customer"
+        tests:
+          - not_null
+      - name: total_balance
+        description: "Sum of balances across all customer accounts"
+        tests:
+          - not_null
+      - name: has_loan
+        description: "Boolean flag indicating whether customer has an active loan"
+        tests:
+          - not_null
+      - name: total_outstanding_debt
+        description: "Sum of outstanding loan balances per customer"
+        tests:
+          - not_null
+      - name: customer_segmented
+        description: "Customer segment based on total balance: bronze, silver, gold, platinum"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['bronze', 'silver', 'gold', 'platinum']
+
+  - name: fct_bank_profitability
+    description: "Bank-level profitability and liquidity metrics"
+    columns:
+      - name: ldr
+        description: "Loan-to-Deposit Ratio — total loans divided by total deposits"
+        tests:
+          - not_null
+      - name: failed_transaction_rate
+        description: "Percentage of failed transactions out of total transactions"
+        tests:
+          - not_null
+      - name: nim
+        description: "Net Interest Margin — net interest income divided by total assets"
+        tests:
+          - not_null
+
+  - name: fct_transactions
+    description: "Aggregated transaction metrics across all accounts"
+    columns:
+      - name: total_volume
+        description: "Total transaction amount across all transactions"
+        tests:
+          - not_null
+      - name: transaction_count
+        description: "Total number of transactions"
+        tests:
+          - not_null
+      - name: credit_volume
+        description: "Total amount of credit transactions"
+        tests:
+          - not_null
+      - name: debit_volume
+        description: "Total amount of debit transactions"
+        tests:
+          - not_null
+      - name: avg_transaction
+        description: "Average transaction amount"
+        tests:
+          - not_null
