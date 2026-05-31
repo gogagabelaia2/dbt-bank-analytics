@@ -1,5 +1,14 @@
 with loans as (
-    select * from {{ ref('stg_loans') }}
+    select
+        loan_id,
+        customer_id,
+        account_id,
+        loan_type,
+        original_amount,
+        outstanding_balance,
+        days_past_due,
+        classification
+    from {{ ref('stg_loans') }}
 ),
 
 loan_payments as (

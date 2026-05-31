@@ -4,42 +4,41 @@ seeds:
 
   - name: loan_classifications
     description: >
-      სესხის კლასიფიკაციების საცნობარო ცხრილი — 
-      ეროვნული ბანკის სტანდარტების მიხედვით.
-      გამოიყენება NPL ratio-სა და provision-ის გამოსათვლელად.
+      Reference table for loan classifications based on National Bank of Georgia standards.
+      Used for NPL ratio and provision calculations.
     columns:
       - name: classification
-        description: სესხის კლასიფიკაციის სახელი
+        description: Loan classification name per NBG standards
         tests:
-          - unique        # ყოველი classification უნიკალური უნდა იყოს
-          - not_null      # ცარიელი არ უნდა იყოს
+          - unique
+          - not_null
           - accepted_values:
               values: ['Standard', 'Watch', 'Substandard', 'Doubtful', 'Loss']
 
       - name: provision_rate
-        description: საპროვიზიო განაკვეთი 0-დან 1-მდე
+        description: "Provision rate between 0 and 1. Example: 0.01 = 1%, 0.50 = 50%"
         tests:
           - not_null
 
   - name: country_risk_tiers
     description: >
-      ქვეყნების რისკ-კლასიფიკაცია AML/KYC მიზნებისთვის.
-      გამოიყენება customer-ების გეოგრაფიული რისკის შეფასებისთვის.
+      Country risk classification table for AML/KYC purposes.
+      Used for geographical risk assessment of customers.
     columns:
       - name: country_code
-        description: ISO Alpha-3 ქვეყნის კოდი
+        description: ISO Alpha-3 country code
         tests:
           - unique
           - not_null
 
       - name: risk_tier
-        description: რისკ-დონე
+        description: Risk level of the country
         tests:
           - not_null
           - accepted_values:
               values: ['Tier1', 'Tier2', 'Tier3']
 
       - name: aml_flag
-        description: AML გაფრთხილების ნიშნული
+        description: AML warning flag — indicates high risk countries
         tests:
           - not_null
